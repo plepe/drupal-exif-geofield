@@ -1,0 +1,8 @@
+name: Exif Geofield
+description: Import exif lon/lat data into a geofield
+package: Media
+type: module
+core_version_requirement: ^9
+dependencies:
+  - exif
+  - geofield
