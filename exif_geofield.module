@@ -1,0 +1,40 @@
+<?php
+/**
+ * @file
+ * Entry point for exif geofield module.
+ */
+
+use Drupal\media\MediaInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\exif_geofield\ExifGeofieldContent;
+use Drupal\Node\NodeInterface;
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * Calculate the value for each metadata field so they can be stored correctly.
+ */
+function exif_geofield_entity_presave(EntityInterface $entity) {
+  $entityType = '';
+  if ($entity instanceof NodeInterface) {
+    $entityType = 'node';
+  }
+  else {
+    if (Drupal::moduleHandler()
+        ->moduleExists("media") && $entity instanceof MediaInterface) {
+      $entityType = 'media';
+    }
+  }
+  if ($entityType != '') {
+    $config = Drupal::configFactory()->get('exif_geofield.settings');
+    $shouldUpdateMetadata = $config->get('update_metadata');
+    if (!isset($shouldUpdateMetadata)) {
+      $shouldUpdateMetadata = TRUE;
+    }
+    $inserting = !isset($entity->original);
+    if ($inserting || $shouldUpdateMetadata) {
+      $exifContentHandler = new ExifGeofieldContent();
+      $exifContentHandler->entity_insert_update($entityType, $entity, !$inserting);
+    }
+  }
+}
