@@ -52,14 +52,16 @@ class ExifGeofieldContent {
 	foreach ($image_fields as $image_field_name => $image_ref) {
 	  if (array_key_exists($image_field_name, $metadata_images_fields)) {
 	    $data = $metadata_images_fields[$image_field_name][0];
-	    $value = "POINT({$data['gps']['gpslongitude']} {$data['gps']['gpslatitude']})";
+            if (array_key_exists('gps', $data) && array_key_exists('gpslongitude', $data['gps'])) {
+              $value = "POINT({$data['gps']['gpslongitude']} {$data['gps']['gpslatitude']})";
 
-	    foreach ($ar_exif_fields as $field_name => $field_ref) {
-	      if ($field_ref['image_field'] === $image_field_name) {
-		$field = $entity->get($field_name);
-		$field->offsetSet(0, $value);
-	      }
-	    }
+              foreach ($ar_exif_fields as $field_name => $field_ref) {
+                if ($field_ref['image_field'] === $image_field_name) {
+                  $field = $entity->get($field_name);
+                  $field->offsetSet(0, $value);
+                }
+              }
+            }
 	  }
 	}
       }
